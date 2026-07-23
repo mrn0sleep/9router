@@ -220,8 +220,12 @@ describe("getUsageForProvider(grok-cli)", () => {
     });
 
     expect(usage.plan).toBe("XPremiumPlus");
-    expect(usage.message).toMatch(/active.*numeric included quota/i);
-    expect(usage.quotas).toEqual({});
+    // New behavior: subscription access returns a synthetic unlimited quota row
+    // instead of a blocking message, so the dashboard still renders QuotaTable.
+    expect(usage.message).toBeUndefined();
+    expect(usage.quotas).toHaveProperty("Subscription");
+    expect(usage.quotas.Subscription.unlimited).toBe(true);
+    expect(usage.quotas.Subscription.remainingPercentage).toBe(100);
   });
 });
 

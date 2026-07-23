@@ -298,6 +298,13 @@ export async function getGrokCliUsage(accessToken, providerSpecificData = null, 
       return { message: "Grok CLI billing response was not JSON." };
     }
 
+    // Debug: log raw billing keys so we can track Grok API format changes
+    console.log(
+      "[Grok CLI Usage] billing keys:",
+      JSON.stringify(Object.keys(billing)),
+      billing.config ? "config keys: " + JSON.stringify(Object.keys(billing.config)) : "(no config)",
+    );
+
     let user = null;
     if (userRes?.ok) {
       user = await userRes.json().catch(() => null);
@@ -306,18 +313,39 @@ export async function getGrokCliUsage(accessToken, providerSpecificData = null, 
     const parsed = parseGrokCliBilling(billing, user);
 
     if (!parsed.quotas || Object.keys(parsed.quotas).length === 0) {
+      // Log the raw config so operators can update the parser when Grok
+      // changes their billing shape — which they do frequently.
+      console.warn(
+        "[Grok CLI Usage] No quotas parsed from billing response.",
+        "rawConfig keys:", JSON.stringify(Object.keys(parsed.rawConfig || {})),
+        "subscriptionAccess:", parsed.subscriptionAccess,
+      );
+
+      if (parsed.subscriptionAccess) {
+        // Subscription is active but Grok isn't exposing numeric quotas.
+        // Return an "unlimited" row so the dashboard still renders a
+        // QuotaTable instead of showing only a dead-end message.
+        return {
+          plan: parsed.plan,
+          quotas: {
+            Subscription: {
+              used: 0,
+              total: 0,
+              remainingPercentage: 100,
+              resetAt: parsed.periodEnd || null,
+              unlimited: true,
+            },
+          },
+        };
+      }
+
       return {
         plan: parsed.plan,
-        message: parsed.subscriptionAccess
-          ? "Subscription access is active; Grok does not expose a numeric included quota."
-          : "Grok Build connected, but no credit allotment was returned. Free promo may be exhausted.",
+        message: "Grok Build connected, but no credit allotment was returned. Free promo may be exhausted.",
         quotas: {},
       };
     }
 
-    // Dashboard hides QuotaTable whenever `message` is set, so only attach a
-    // message when there are no quota rows to render. Depleted accounts keep
-    // the 0% On-demand bar without a blocking message.
     return {
       plan: parsed.plan,
       quotas: parsed.quotas,

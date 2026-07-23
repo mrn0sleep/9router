@@ -18,11 +18,13 @@ Dashboard/gateway (run from repo root):
 ```bash
 cp .env.example .env
 npm install
-PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev   # dev (webpack, port 20127 by default via next dev)
+PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev   # dev (default package.json port is 20128)
 npm run build && PORT=20128 HOSTNAME=0.0.0.0 npm run start           # production
 ```
 - Bun variants: `npm run dev:bun` / `build:bun` / `start:bun`.
-- Default runtime port is **20128** (dashboard at `/dashboard`, API at `/v1`).
+- Default runtime port is **20128** (dashboard at `/dashboard`, API at `/v1`). Scripts `dev` / `dev:webpack` / `dev:bun` pin that port; `start` uses Next's default unless `PORT` is set.
+- Windows (PowerShell): `$env:PORT="20128"; $env:NEXT_PUBLIC_BASE_URL="http://localhost:20128"; npm run dev`
+- Windows (cmd): `set PORT=20128 && set NEXT_PUBLIC_BASE_URL=http://localhost:20128 && npm run dev`
 - Lint: `npx eslint .` (config `eslint.config.mjs`, extends `eslint-config-next`).
 
 CLI package (`cli/`):
@@ -35,18 +37,22 @@ Tests (vitest, in `tests/`, an **independent** ESM package — not wired into ro
 ```bash
 npm install                             # ROOT deps first — tests import from src/ which needs `open`, `undici`, etc.
 cd tests && npm install                 # then tests' own deps (vitest) → tests/node_modules (allowed by tests/.gitignore)
-npx vitest run                          # all tests; auto-discovers tests/vitest.config.js
+npm test                                # cross-platform (Windows/macOS/Linux); uses local vitest
+# or:
+npx vitest run                          # same; auto-discovers tests/vitest.config.js
 npx vitest run unit/capabilities.test.js   # single file (path relative to tests/)
+npx vitest run unit/grok-cli-usage.test.js # Grok CLI usage parser (mocked; no live API)
 ```
-> The committed `tests/package.json` `test` script hardcodes Unix paths (`NODE_PATH=/tmp/node_modules …`) — a shared-install workaround from upstream. On Windows (or anywhere), ignore it and use the `npx vitest` form above; `vitest.config.js` resolves the `open-sse`/`@/` aliases from the repo root regardless of where vitest lives.
+> `tests/package.json` scripts call local `vitest` only — no Unix-only `NODE_PATH=/tmp/...` hardcodes. `vitest.config.js` resolves `open-sse` / `@/` aliases from the repo root on every OS.
 >
 > **The suite is NOT expected to be all-green on a plain checkout.** ~938 pass, ~64 fail. Judge regressions with `tests/__baseline__/verify-no-regression.mjs`, not a raw run. Expected red:
 > - 26 catalogued in `tests/__baseline__/known-fails.txt` (rtk, oauth-cursor-auto-import, translator-request-normalization, …).
 > - `unit/embeddings.cloud.test.js` imports `cloud/src/handlers/embeddings.js` — the `cloud/` worker dir is **not in this repo**, so it always fails here.
 > - `unit/xai-oauth-service.test.js` times out (5s) when the xAI endpoint-discovery fetch isn't reachable/mocked.
 > - `real/*.real.test.js` make live provider calls — need credentials, skip otherwise.
-- `*.real.test.js` under `tests/translator/real/` make live provider calls — skip unless credentials are set.
+- `*.real.test.js` under `tests/translator/real/` make live provider calls — skip unless credentials are set. Safe local runs: stick to `unit/*` (mocked).
 - Regression baselines: `tests/__baseline__/verify-*.mjs` compare against committed snapshots (providers, aliases, OAuth URLs). Run these after touching provider registry / alias logic.
+- Usage dashboard: `grok-cli` is supported (`open-sse/services/usage/grok-cli.js`). Paid sub with no numeric quota returns a synthetic unlimited `Subscription` row so QuotaTable still renders.
 
 ## Architecture
 
