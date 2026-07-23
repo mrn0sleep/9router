@@ -1,5 +1,7 @@
-import { platform, arch } from "os";
+import { platform, arch, hostname } from "os";
 import { PROVIDERS, PROVIDER_OAUTH } from "./providers.js";
+import { ANTIGRAVITY_IDE_USER_AGENT } from "../providers/shared.js";
+import { createRequire } from "module";
 
 // === Gemini CLI === derive từ registry gemini-cli.transport
 export const GEMINI_CLI_VERSION = PROVIDERS["gemini-cli"]?.cliVersion;
@@ -57,23 +59,9 @@ export function getPlatformEnum() {
   if (os === "win32") return PLATFORM.WINDOWS_AMD64;
   return PLATFORM.UNSPECIFIED;
 }
-// Map Node.js os identifiers to the format used by the real Antigravity IDE
-function getIdePlatform() {
-  const p = platform();
-  if (p === "win32") return "windows";
-  if (p === "darwin") return "darwin";
-  return p; // linux, etc.
-}
-function getIdeArch() {
-  const a = arch();
-  if (a === "x64") return "amd64";
-  return a; // arm64, etc.
-}
-
-export const ANTIGRAVITY_IDE_VERSION = "2.1.1";
 
 export function getPlatformUserAgent() {
-  return `antigravity/ide/${ANTIGRAVITY_IDE_VERSION} ${getIdePlatform()}/${getIdeArch()}`;
+  return ANTIGRAVITY_IDE_USER_AGENT;
 }
 
 export const CLIENT_METADATA = {
@@ -141,9 +129,9 @@ export const AG_DEFAULT_TOOLS = new Set([
   "write_to_file"
 ]);
 
-// Antigravity chat/stream headers — must match real IDE fingerprint
+// Antigravity chat/stream headers
 export const ANTIGRAVITY_HEADERS = {
-  "User-Agent": getPlatformUserAgent()
+  "User-Agent": ANTIGRAVITY_IDE_USER_AGENT
 };
 
 // Cloud Code Assist API
@@ -153,7 +141,10 @@ export const CLOUD_CODE_API = {
 };
 
 export const LOAD_CODE_ASSIST_HEADERS = {
-  "User-Agent": getPlatformUserAgent(),
+  "Content-Type": "application/json",
+  "User-Agent": "google-api-nodejs-client/9.15.1",
+  "X-Goog-Api-Client": "google-cloud-sdk vscode_cloudshelleditor/0.1",
+  "Client-Metadata": JSON.stringify({ ideType: IDE_TYPE.ANTIGRAVITY, platform: getPlatformEnum(), pluginType: PLUGIN_TYPE.GEMINI }),
 };
 
 export const LOAD_CODE_ASSIST_METADATA = {
@@ -181,12 +172,44 @@ export const OAUTH_ENDPOINTS = {
   github:    { token: PROVIDER_OAUTH["github"]?.tokenUrl, auth: PROVIDER_OAUTH["github"]?.authorizeUrl, deviceCode: PROVIDER_OAUTH["github"]?.deviceCodeUrl },
 };
 
-// Generate Kimi OAuth custom headers
-export function buildKimiHeaders() {
+let _appVersion;
+function getAppPackageVersion() {
+  if (_appVersion) return _appVersion;
+  try {
+    const require = createRequire(import.meta.url);
+    _appVersion = require("../../package.json").version || "0.0.0";
+  } catch {
+    _appVersion = process.env.npm_package_version || "0.0.0";
+  }
+  return _appVersion;
+}
+
+// Kimi Code OAuth / API headers (CLIProxyAPI internal/auth/kimi commonHeaders parity).
+// deviceId must stay stable per connection for the whole OAuth session.
+export function buildKimiHeaders(deviceId) {
+  const osName = platform();
+  const architecture = arch();
+  let deviceModel = `${osName} ${architecture}`;
+  if (osName === "darwin") deviceModel = `macOS ${architecture}`;
+  else if (osName === "win32") deviceModel = `Windows ${architecture}`;
+  else if (osName === "linux") deviceModel = `Linux ${architecture}`;
+
+  let deviceName = "unknown";
+  try {
+    deviceName = hostname() || "unknown";
+  } catch {
+    deviceName = "unknown";
+  }
+
+  const resolvedId = (typeof deviceId === "string" && deviceId.trim())
+    ? deviceId.trim()
+    : `kimi-${Date.now()}`;
+
   return {
     "X-Msh-Platform": "9router",
-    "X-Msh-Version": "2.1.2",
-    "X-Msh-Device-Model": typeof process !== "undefined" ? `${process.platform} ${process.arch}` : "unknown",
-    "X-Msh-Device-Id": `kimi-${Date.now()}`
+    "X-Msh-Version": getAppPackageVersion(),
+    "X-Msh-Device-Name": deviceName,
+    "X-Msh-Device-Model": deviceModel,
+    "X-Msh-Device-Id": resolvedId,
   };
 }
