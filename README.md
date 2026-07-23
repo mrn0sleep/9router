@@ -1,23 +1,16 @@
 <div align="center">
-  <img src="./images/9router.png?1" alt="9Router Dashboard" width="800"/>
-  
-  # 9Router - FREE AI Router & Token Saver
-  
-  **Never stop coding. Save 20-40% tokens with RTK + auto-fallback to FREE & cheap AI models.**
-  
-  **Connect All AI Code Tools (Claude Code, Cursor, Antigravity, Copilot, Codex, Gemini, OpenCode, Cline, OpenClaw...) to 40+ AI Providers & 100+ Models.**
-  
-  [![npm](https://img.shields.io/npm/v/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Downloads](https://img.shields.io/npm/dm/9router.svg)](https://www.npmjs.com/package/9router)
-  [![Docker Pulls](https://img.shields.io/docker/pulls/decolua/9router.svg?logo=docker&label=Docker%20pulls)](https://hub.docker.com/r/decolua/9router)
-  [![GHCR](https://img.shields.io/badge/GHCR-decolua%2F9router-blue?logo=github)](https://github.com/decolua/9router/pkgs/container/9router)
-  [![License](https://img.shields.io/npm/l/9router.svg)](https://github.com/decolua/9router/blob/main/LICENSE)
+  <img src="./images/9router.png" alt="9Router Dashboard" width="800"/>
 
-<a href="https://trendshift.io/repositories/22628" target="_blank"><img src="https://trendshift.io/api/badge/repositories/22628" alt="decolua%2F9router | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+  # 9Router
 
-[🚀 Quick Start](#-quick-start) • [💡 Features](#-key-features) • [📖 Setup](#-setup-guide) • [🌐 Website](https://9router.com)
+  **Local AI routing gateway + dashboard.** One OpenAI-compatible endpoint (`/v1/*`) across 40+ providers, with format translation, model-combo fallback, multi-account routing, OAuth, quota tracking, and RTK token saving.
 
-[🇻🇳 Tiếng Việt](./i18n/README.vi.md) • [🇨🇳 中文](./i18n/README.zh-CN.md) • [🇯🇵 日本語](./i18n/README.ja-JP.md) • [🇷🇺 Русский](./i18n/README.ru.md) • [🇹🇭 ไทย](./i18n/README.th.md) • [🇮🇷 فارسی](./i18n/README.fa_IR.md)
+  [![GitHub](https://img.shields.io/badge/GitHub-mrn0sleep%2F9router-181717?logo=github)](https://github.com/mrn0sleep/9router)
+  [![License](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+
+  [🚀 Quick Start](#-quick-start) • [💻 Install by OS](#-installation-from-source-by-os) • [💡 Features](#-key-features) • [📖 Setup](#-setup-guide)
+
+  > Fork of [decolua/9router](https://github.com/decolua/9router) maintained at **[mrn0sleep/9router](https://github.com/mrn0sleep/9router)**.
 
 </div>
 
@@ -35,11 +28,11 @@
 
 **9Router solves this:**
 
-- ✅ **RTK Token Saver** - Auto-compress tool_result content, save 20-40% tokens per request
-- ✅ **Maximize subscriptions** - Track quota, use every bit before reset
-- ✅ **Auto fallback** - Subscription → Cheap → Free, zero downtime
-- ✅ **Multi-account** - Round-robin between accounts per provider
-- ✅ **Universal** - Works with Claude Code, Codex, Cursor, Cline, any CLI tool
+- ✅ **RTK Token Saver** — compress `tool_result` content, save ~20–40% tokens per request
+- ✅ **Quota tracking** — usage dashboard per provider/account (incl. Grok CLI)
+- ✅ **Auto fallback** — subscription → cheap → free, zero downtime
+- ✅ **Multi-account** — round-robin / failover between accounts per provider
+- ✅ **Universal** — Claude Code, Codex, Cursor, Cline, OpenClaw, any OpenAI-compatible client
 
 ---
 
@@ -60,48 +53,54 @@
 │  • Auto token refresh                       │
 └──────┬──────────────────────────────────────┘
        │
-       ├─→ [Tier 1: SUBSCRIPTION] Claude Code, Codex, GitHub Copilot
+       ├─→ [Tier 1: SUBSCRIPTION] Claude Code, Codex, GitHub Copilot, Grok CLI…
        │   ↓ quota exhausted
-       ├─→ [Tier 2: CHEAP] GLM ($0.6/1M), MiniMax ($0.2/1M)
+       ├─→ [Tier 2: CHEAP] GLM, MiniMax, …
        │   ↓ budget limit
-       └─→ [Tier 3: FREE] Kiro, OpenCode Free, Vertex ($300 credits)
+       └─→ [Tier 3: FREE] Kiro, OpenCode Free, Vertex credits, …
 
-Result: Never stop coding, minimal cost + 20-40% token savings via RTK
+Result: keep coding, lower cost + RTK token savings
 ```
 
 ---
 
 ## ⚡ Quick Start
 
-**1. Install globally:**
+This repo is meant to be **run from source** (or Docker you build yourself). Prefer the [OS install guides](#-installation-from-source-by-os) below.
+
+**Short path (Linux / macOS):**
 
 ```bash
-npm install -g 9router
-9router
+git clone https://github.com/mrn0sleep/9router.git
+cd 9router
+cp .env.example .env
+npm install --legacy-peer-deps
+PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev
 ```
 
-🎉 Dashboard opens at `http://localhost:20128`
+**Windows (PowerShell):**
 
-**2. Connect a FREE provider (no signup needed):**
-
-Dashboard → Providers → Connect **Kiro AI** (~50 credits/month free: Claude 4.5 + GLM-5 + MiniMax) or **OpenCode Free** (no auth) → Done!
-
-**3. Use in your CLI tool:**
-
-```
-Claude Code/Codex/OpenClaw/Cursor/Cline Settings:
-  Endpoint: http://localhost:20128/v1
-  API Key: [copy from dashboard]
-  Model: kr/claude-sonnet-4.5
+```powershell
+git clone https://github.com/mrn0sleep/9router.git
+cd 9router
+Copy-Item .env.example .env
+npm install --legacy-peer-deps
+$env:PORT="20128"; $env:NEXT_PUBLIC_BASE_URL="http://localhost:20128"; npm run dev
 ```
 
-**That's it!** Start coding with FREE AI models.
+Then:
 
-**Alternative: run from source (this repository):**
+1. Open **Dashboard** → `http://localhost:20128/dashboard`
+2. Connect a provider (e.g. **Kiro AI**, **OpenCode Free**, **Grok CLI**)
+3. Point your CLI tool at:
 
-This repository package is private (`9router-app`), so source/Docker execution is the expected local development path. Follow the OS-specific guide below.
+```
+Endpoint: http://localhost:20128/v1
+API Key:  [copy from dashboard]
+Model:    kr/claude-sonnet-4.5   # example — pick any connected model/combo
+```
 
-Default URLs after start:
+Default URLs:
 
 - Dashboard: `http://localhost:20128/dashboard`
 - OpenAI-compatible API: `http://localhost:20128/v1`
@@ -147,7 +146,7 @@ git --version
 #### Clone & setup
 
 ```powershell
-git clone https://github.com/decolua/9router.git
+git clone https://github.com/mrn0sleep/9router.git
 cd 9router
 ```
 
@@ -228,7 +227,7 @@ git --version
 #### Clone & setup
 
 ```bash
-git clone https://github.com/decolua/9router.git
+git clone https://github.com/mrn0sleep/9router.git
 cd 9router
 cp .env.example .env
 npm install --legacy-peer-deps
@@ -293,7 +292,7 @@ git --version
 #### Clone & setup
 
 ```bash
-git clone https://github.com/decolua/9router.git
+git clone https://github.com/mrn0sleep/9router.git
 cd 9router
 cp .env.example .env
 npm install --legacy-peer-deps
@@ -335,7 +334,7 @@ git --version
 #### Clone & setup
 
 ```bash
-git clone https://github.com/decolua/9router.git
+git clone https://github.com/mrn0sleep/9router.git
 cd 9router
 cp .env.example .env
 npm install --legacy-peer-deps
@@ -379,7 +378,7 @@ git --version
 #### Clone & setup
 
 ```bash
-git clone https://github.com/decolua/9router.git
+git clone https://github.com/mrn0sleep/9router.git
 cd 9router
 cp .env.example .env
 npm install --legacy-peer-deps
@@ -408,8 +407,8 @@ PORT=20128 HOSTNAME=0.0.0.0 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run 
 2. Connect a provider (e.g. **Kiro AI** or **OpenCode Free**)
 3. Point your CLI tool at `http://localhost:20128/v1` with the API key from the dashboard
 
-> Prefer a one-liner without building from source? Use the global CLI instead:  
-> `npm install -g 9router` then `9router` (see [Quick Start](#-quick-start)).
+> Full step-by-step for Windows / macOS / Debian / Arch / Fedora is above.  
+> After install, see [Setup Guide](#-setup-guide) for CLI tool wiring.
 
 ---
 
@@ -515,7 +514,7 @@ PORT=20128 HOSTNAME=0.0.0.0 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run 
 
 </div>
 
-> 🎬 **Made a video about 9Router?** Submit a [Pull Request](https://github.com/decolua/9router/pulls) adding your video to this section — we'll merge it!
+> 🎬 **Made a video about this fork?** Open an issue or PR on [mrn0sleep/9router](https://github.com/mrn0sleep/9router).
 
 ---
 
@@ -1435,7 +1434,7 @@ Model: cc/claude-opus-4-7
 
 ```bash
 # Clone and install
-git clone https://github.com/decolua/9router.git
+git clone https://github.com/mrn0sleep/9router.git
 cd 9router
 npm install
 npm run build
@@ -1464,33 +1463,17 @@ pm2 startup
 
 ### Docker
 
-Published images (multi-platform `linux/amd64` + `linux/arm64`):
-
-- Docker Hub: [`decolua/9router`](https://hub.docker.com/r/decolua/9router)
-- GHCR: [`ghcr.io/decolua/9router`](https://github.com/decolua/9router/pkgs/container/9router)
-
-**Quick start (use published image):**
+This fork does **not** publish Docker Hub / GHCR images. Build locally from this repo:
 
 ```bash
-docker run -d \
-  --name 9router \
-  -p 20128:20128 \
-  -v "$HOME/.9router:/app/data" \
-  -e DATA_DIR=/app/data \
-  decolua/9router:latest
-```
-
-→ Open http://localhost:20128
-
-**Build from source (dev):**
-
-```bash
-git clone https://github.com/decolua/9router.git
-cd 9router/app
+git clone https://github.com/mrn0sleep/9router.git
+cd 9router
 docker build -t 9router .
 docker run -d --name 9router -p 20128:20128 \
   -v "$HOME/.9router:/app/data" -e DATA_DIR=/app/data 9router
 ```
+
+→ Open http://localhost:20128
 
 **Container defaults:**
 
@@ -1503,10 +1486,12 @@ docker run -d --name 9router -p 20128:20128 \
 docker logs -f 9router
 docker restart 9router
 docker stop 9router && docker rm 9router
-docker pull decolua/9router:latest   # update to latest
+docker build -t 9router .   # rebuild after pulls
 ```
 
 **Data persistence:** `$HOME/.9router/db/data.sqlite` on host ↔ `/app/data/db/data.sqlite` in container.
+
+> Optional: upstream also publishes `decolua/9router` / `ghcr.io/decolua/9router` if you need a prebuilt image of the original project.
 
 ### Environment Variables
 
@@ -1704,49 +1689,30 @@ Authorization: Bearer your-api-key
 
 ## 📧 Support
 
-- **Website**: [9router.com](https://9router.com)
-- **GitHub**: [github.com/decolua/9router](https://github.com/decolua/9router)
-- **Issues**: [github.com/decolua/9router/issues](https://github.com/decolua/9router/issues)
-
----
-
-## 👥 Contributors
-
-Thanks to all contributors who helped make 9Router better!
-
-[![Contributors](https://contrib.rocks/image?repo=decolua/9router&max=150&columns=15&anon=1&v=20260309)](https://github.com/decolua/9router/graphs/contributors)
-
----
-
-## 📊 Star Chart
-
-[![Star Chart](https://starchart.cc/decolua/9router.svg?variant=adaptive)](https://starchart.cc/decolua/9router)
-
-## 🔀 Forks
-
-**[OmniRoute](https://github.com/diegosouzapw/OmniRoute)** — A full-featured TypeScript fork of 9Router. Adds 36+ providers, 4-tier auto-fallback, multi-modal APIs (images, embeddings, audio, TTS), circuit breaker, semantic cache, LLM evaluations, and a polished dashboard. 368+ unit tests. Available via npm and Docker.
+- **This fork**: [github.com/mrn0sleep/9router](https://github.com/mrn0sleep/9router)
+- **Issues**: [github.com/mrn0sleep/9router/issues](https://github.com/mrn0sleep/9router/issues)
+- **Upstream project**: [github.com/decolua/9router](https://github.com/decolua/9router) · site [9router.com](https://9router.com)
 
 ---
 
 ## 🙏 Acknowledgments
 
-Built on the shoulders of giants:
+This repository is a fork of **[decolua/9router](https://github.com/decolua/9router)**. Thanks to the upstream authors and contributors.
 
-- **[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI)** — original Go implementation that inspired this JavaScript port.
-- **[RTK](https://github.com/rtk-ai/rtk)** ![Stars](https://img.shields.io/github/stars/rtk-ai/rtk?style=flat&color=yellow) — Rust token-saver. 9Router ports its compression pipeline to JS → **−20-40% input tokens** on every request.
-- **[Caveman](https://github.com/JuliusBrussee/caveman)** ![Stars](https://img.shields.io/github/stars/JuliusBrussee/caveman?style=flat&color=yellow) by **[@JuliusBrussee](https://github.com/JuliusBrussee)** — viral _"why use many token when few token do trick"_. 9Router adapts its prompt → **−65% output tokens**.
-- **[Ponytail](https://github.com/DietrichGebert/ponytail)** ![Stars](https://img.shields.io/github/stars/DietrichGebert/ponytail?style=flat&color=yellow) by **[@DietrichGebert](https://github.com/DietrichGebert)** — _"lazy senior dev"_ skill. 9Router injects its YAGNI-first ladder → **fewer tokens, less code, shorter diffs**.
+Also built on:
 
-Huge thanks to these authors — without their work, 9Router's token-saving features wouldn't exist. ⭐ them on GitHub!
+- **[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI)** — original Go implementation that inspired the JavaScript port.
+- **[RTK](https://github.com/rtk-ai/rtk)** — Rust token-saver; compression pipeline ported to JS.
+- **[Caveman](https://github.com/JuliusBrussee/caveman)** · **[Ponytail](https://github.com/DietrichGebert/ponytail)** — prompt / skill ideas for token thrift.
 
 ---
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ for developers who code 24/7</sub>
+  <sub>Fork maintained at <a href="https://github.com/mrn0sleep/9router">mrn0sleep/9router</a></sub>
 </div>
