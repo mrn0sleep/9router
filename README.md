@@ -99,124 +99,317 @@ Claude Code/Codex/OpenClaw/Cursor/Cline Settings:
 
 **Alternative: run from source (this repository):**
 
-This repository package is private (`9router-app`), so source/Docker execution is the expected local development path.
+This repository package is private (`9router-app`), so source/Docker execution is the expected local development path. Follow the OS-specific guide below.
 
-```bash
-cp .env.example .env
-npm install
-PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev
-```
-
-Production mode:
-
-```bash
-npm run build
-PORT=20128 HOSTNAME=0.0.0.0 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run start
-```
-
-Default URLs:
+Default URLs after start:
 
 - Dashboard: `http://localhost:20128/dashboard`
 - OpenAI-compatible API: `http://localhost:20128/v1`
 
 ---
 
+## 💻 Installation from source (by OS)
+
+Pick your platform. Order: **Windows → macOS → Debian/Ubuntu → Arch → Fedora**.
+
+Requirements on every OS: **Node.js 18+ (LTS recommended)** and **Git**. Optional native SQLite (`better-sqlite3`) needs a C/C++ toolchain; without it the app still runs via pure-JS `sql.js`.
 
 ---
 
-## Installation (Windows)
+### 1) Windows
 
-### Step 1 — Install Node.js & npm
+#### Install Node.js & npm
 
-1. Go to [https://nodejs.org](https://nodejs.org) and download the **LTS** installer (`.msi`).
-2. Run the installer — keep all defaults checked (this will install both Node.js and npm).
-3. **Important:** Check the box **"Automatically install the necessary tools"** if prompted (this installs build tools needed by some native dependencies).
-4. After installation, **open a new Command Prompt or PowerShell** and verify:
+1. Download the **LTS** installer (`.msi`) from [https://nodejs.org](https://nodejs.org).
+2. Run it — keep defaults. If prompted, enable **"Automatically install the necessary tools"** (Visual Studio Build Tools for native deps).
+3. Open a **new** PowerShell or Command Prompt and verify:
+
 ```powershell
 node -v
 npm -v
 ```
-Both should print a version number (e.g. `v20.x.x` and `10.x.x`).
 
-> **Alternative:** If you prefer a version manager, you can use [nvm-windows](https://github.com/coreybutler/nvm-windows) to install and switch between Node.js versions:
+> Optional version manager: [nvm-windows](https://github.com/coreybutler/nvm-windows)
 > ```powershell
 > nvm install lts
 > nvm use lts
 > ```
 
-### Step 2 — Install Git
+#### Install Git
 
-1. Download Git from [https://git-scm.com/download/win](https://git-scm.com/download/win).
-2. Run the installer — the defaults are fine.
-3. Verify:
+1. Download from [https://git-scm.com/download/win](https://git-scm.com/download/win).
+2. Defaults are fine. Verify:
+
 ```powershell
 git --version
 ```
 
-### Step 3 — Clone & Setup
-
-Open **Command Prompt**, **PowerShell**, or **Git Bash** and run:
+#### Clone & setup
 
 ```powershell
 git clone https://github.com/decolua/9router.git
 cd 9router
 ```
 
-Copy the environment file:
+Copy env file:
 
-**PowerShell:**
 ```powershell
+# PowerShell
 Copy-Item .env.example .env
-```
 
-**Command Prompt:**
-```cmd
+# Command Prompt
 copy .env.example .env
-```
 
-**Git Bash:**
-```bash
+# Git Bash
 cp .env.example .env
 ```
 
 Install dependencies:
+
 ```powershell
 npm install --legacy-peer-deps
 ```
 
-### Step 4 — Run the Application
+#### Run
 
-On Windows, environment variables are set differently. Use one of the methods below.
+**Development (PowerShell):**
 
-**Development Mode (PowerShell):**
 ```powershell
 $env:PORT="20128"; $env:NEXT_PUBLIC_BASE_URL="http://localhost:20128"; npm run dev
 ```
 
-**Development Mode (Command Prompt):**
+**Development (Command Prompt):**
+
 ```cmd
 set PORT=20128 && set NEXT_PUBLIC_BASE_URL=http://localhost:20128 && npm run dev
 ```
 
-**Production Mode (PowerShell):**
+**Production (PowerShell):**
+
 ```powershell
 npm run build
 $env:PORT="20128"; $env:HOSTNAME="0.0.0.0"; $env:NEXT_PUBLIC_BASE_URL="http://localhost:20128"; npm run start
 ```
 
-**Production Mode (Command Prompt):**
+**Production (Command Prompt):**
+
 ```cmd
 npm run build
 set PORT=20128 && set HOSTNAME=0.0.0.0 && set NEXT_PUBLIC_BASE_URL=http://localhost:20128 && npm run start
 ```
 
-> **Tip:** If you want a cross-platform way to set env variables, you can install [cross-env](https://www.npmjs.com/package/cross-env):
-> ```powershell
-> npm install -g cross-env
-> cross-env PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev
-> ```
+> Cross-platform tip: `npm install -g cross-env` then  
+> `cross-env PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev`
 
 ---
+
+### 2) macOS
+
+#### Install prerequisites
+
+With [Homebrew](https://brew.sh):
+
+```bash
+brew install node git
+# Optional (native better-sqlite3 build tools — Xcode CLT):
+xcode-select --install
+```
+
+Or install Node LTS from [https://nodejs.org](https://nodejs.org) and Git via Homebrew/`xcode-select`.
+
+Verify:
+
+```bash
+node -v
+npm -v
+git --version
+```
+
+#### Clone & setup
+
+```bash
+git clone https://github.com/decolua/9router.git
+cd 9router
+cp .env.example .env
+npm install --legacy-peer-deps
+```
+
+#### Run
+
+**Development:**
+
+```bash
+PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev
+```
+
+**Production:**
+
+```bash
+npm run build
+PORT=20128 HOSTNAME=0.0.0.0 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run start
+```
+
+Fish shell:
+
+```fish
+env PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev
+```
+
+---
+
+### 3) Linux — Debian / Ubuntu
+
+#### Install prerequisites
+
+```bash
+sudo apt update
+sudo apt install -y git curl ca-certificates build-essential python3
+```
+
+Node.js 20 LTS (NodeSource):
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+Or with [nvm](https://github.com/nvm-sh/nvm):
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+# reopen shell, then:
+nvm install --lts
+nvm use --lts
+```
+
+Verify:
+
+```bash
+node -v
+npm -v
+git --version
+```
+
+#### Clone & setup
+
+```bash
+git clone https://github.com/decolua/9router.git
+cd 9router
+cp .env.example .env
+npm install --legacy-peer-deps
+```
+
+#### Run
+
+**Development:**
+
+```bash
+PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev
+```
+
+**Production:**
+
+```bash
+npm run build
+PORT=20128 HOSTNAME=0.0.0.0 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run start
+```
+
+---
+
+### 4) Linux — Arch / Manjaro
+
+#### Install prerequisites
+
+```bash
+sudo pacman -Syu --needed git nodejs npm base-devel python
+```
+
+Verify:
+
+```bash
+node -v
+npm -v
+git --version
+```
+
+#### Clone & setup
+
+```bash
+git clone https://github.com/decolua/9router.git
+cd 9router
+cp .env.example .env
+npm install --legacy-peer-deps
+```
+
+#### Run
+
+**Development:**
+
+```bash
+PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev
+```
+
+**Production:**
+
+```bash
+npm run build
+PORT=20128 HOSTNAME=0.0.0.0 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run start
+```
+
+---
+
+### 5) Linux — Fedora / RHEL / CentOS Stream
+
+#### Install prerequisites
+
+```bash
+sudo dnf install -y git nodejs npm gcc-c++ make python3
+```
+
+On older RHEL/CentOS without a recent Node in the default repos, use NodeSource or nvm (same as Debian section).
+
+Verify:
+
+```bash
+node -v
+npm -v
+git --version
+```
+
+#### Clone & setup
+
+```bash
+git clone https://github.com/decolua/9router.git
+cd 9router
+cp .env.example .env
+npm install --legacy-peer-deps
+```
+
+#### Run
+
+**Development:**
+
+```bash
+PORT=20128 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run dev
+```
+
+**Production:**
+
+```bash
+npm run build
+PORT=20128 HOSTNAME=0.0.0.0 NEXT_PUBLIC_BASE_URL=http://localhost:20128 npm run start
+```
+
+---
+
+### After it starts (all platforms)
+
+1. Open `http://localhost:20128/dashboard`
+2. Connect a provider (e.g. **Kiro AI** or **OpenCode Free**)
+3. Point your CLI tool at `http://localhost:20128/v1` with the API key from the dashboard
+
+> Prefer a one-liner without building from source? Use the global CLI instead:  
+> `npm install -g 9router` then `9router` (see [Quick Start](#-quick-start)).
 
 ---
 
